@@ -1,5 +1,5 @@
-from pprint import pprint
 import os
+import sqlite3
 import xml.etree.ElementTree as ET
 
 from kaiwa import paths
@@ -20,6 +20,20 @@ class Skype(object):
         root = tree.getroot()
         return root.find("*/Account/Default").text
 
+    def parse(self):
+        conn = sqlite3.connect(self.chat)
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+        c.execute('SELECT * FROM Messages limit 100')
+        row = None
+        while True:
+            row = c.fetchone()
+            if row is None:
+                break
+            #print row
+            #print row.keys()
+            print row['author'], ':', row['timestamp'], ':', row['body_xml']
+
 
 class SkypeCommand(object):
     def __init__(self, subparsers):
@@ -29,4 +43,4 @@ class SkypeCommand(object):
 
     def execute(self, options):
         skype = Skype(paths.SKYPE_ROOT, options.account)
-        pprint(skype.__dict__)
+        skype.parse()
