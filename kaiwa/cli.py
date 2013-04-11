@@ -1,12 +1,15 @@
-from pprint import pprint
+import argparse
 
-from kaiwa import paths
-from kaiwa.parsers.skype import Skype
+from kaiwa.parsers.skype import SkypeCommand
 
 
 def main():
-    skype = Skype(paths.SKYPE_ROOT)
-    pprint(skype.__dict__)
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers()
+    SkypeCommand(subparsers)
+
+    args = parser.parse_args()
+    args.execute(args)
 
 if __name__ == '__main__':
     main()
