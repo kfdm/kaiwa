@@ -30,19 +30,20 @@ class Conversation(object):
 
 
 class Skype(object):
-    def __init__(self, skype_root, skype_user=None, output=None):
+    def __init__(self, skype_root, skype_user, output_root):
         self.root = skype_root
-        if skype_user:
-            self.user = os.path.join(self.root, skype_user)
-        else:
-            self.user = os.path.join(self.root, self._find_user_root())
-        self.output = output
+
+        if skype_user is None:
+            skype_user = self._find_default_user()
+
+        self.user = os.path.join(self.root, skype_user)
+        self.output = output_root
         self.chat = os.path.join(self.user, 'main.db')
 
         if not os.path.exists(self.output):
             os.makedirs(self.output)
 
-    def _find_user_root(self):
+    def _find_default_user(self):
         default_path = os.path.join(self.root, 'shared.xml')
         tree = ET.parse(default_path)
         root = tree.getroot()
