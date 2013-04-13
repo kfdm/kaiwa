@@ -1,11 +1,13 @@
+import logging
 import os
 import shutil
 import sqlite3
 import time
 import xml.etree.ElementTree as ET
-import shutil
 
 from kaiwa import paths
+
+logger = logging.getLogger(__name__)
 
 
 class Conversation(object):
@@ -15,9 +17,6 @@ class Conversation(object):
         self.title = row['displayname'] if row['displayname'] else ""
         self.slug = "".join([x if x.isalnum() else "_" for x in self.title])
         self.path = os.path.join(output, '{0}-{1}'.format(self.id, self.slug))
-
-    def __str__(self):
-        return self.title.encode('utf8', 'replace')
 
     def write(self, row):
         with open(self.path + '.txt', 'a') as fp:
@@ -56,16 +55,17 @@ class Skype(object):
         conn.row_factory = sqlite3.Row
         c = conn.cursor()
 
-        c.execute('SELECT * FROM Conversations')
-
         conversations = {}
 
+        logger.info('Reading conversations')
+        c.execute('SELECT * FROM Conversations')
         while True:
             row = c.fetchone()
             if row is None:
                 break
             conversations[row['id']] = Conversation(row, self.output)
 
+        logger.info('Reading messages')
         c.execute('SELECT * FROM Messages')
         while True:
             row = c.fetchone()
@@ -88,6 +88,6 @@ class SkypeCommand(object):
     def execute(self, options):
         if options.clear:
             if os.path.exists(options.output):
-                print 'Removing', options.output
+                logger.info('Removing %s', options.output)
                 shutil.rmtree(options.output)
         Skype(paths.SKYPE_ROOT, options.account, options.output).convert_logs()

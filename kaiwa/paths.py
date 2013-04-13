@@ -12,4 +12,4 @@ if OS_PLATFORM == 'Darwin':
     SKYPE_ROOT = os.path.join(
         HOME, 'Library', 'Application Support', 'Skype'
     )
-    OUTPUT = os.path.join(HOME, 'Desktop')
+    OUTPUT = os.path.join(HOME, 'Documents', 'Converted Chats')
