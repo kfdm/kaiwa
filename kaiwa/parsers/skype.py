@@ -42,6 +42,7 @@ class Skype(object):
         self.chat = os.path.join(self.user, 'main.db')
 
         if not os.path.exists(self.output):
+            logger.info('Creating output directory: %s', self.output)
             os.makedirs(self.output)
 
     def _find_default_user(self):
@@ -77,17 +78,25 @@ class Skype(object):
 class SkypeCommand(object):
     def __init__(self, subparsers):
         self.parser = subparsers.add_parser('skype')
-        self.parser.add_argument('--account')
+        self.parser.add_argument(
+            '--account',
+            help="Skype account handle"
+        )
         self.parser.add_argument(
             '--output',
-            default=os.path.join(paths.OUTPUT, 'Skype')
+            default=os.path.join(paths.OUTPUT, 'Skype'),
+            help="Output path for logs (%(default)s)"
         )
-        self.parser.add_argument('--clear', action='store_true')
+        self.parser.add_argument(
+            '-v', '--verbosity',
+            choices=['warn', 'info', 'debug'],
+            default='warn'
+        )
         self.parser.set_defaults(execute=self.execute)
 
     def execute(self, options):
-        if options.clear:
-            if os.path.exists(options.output):
-                logger.info('Removing %s', options.output)
-                shutil.rmtree(options.output)
+        logging.basicConfig(level=logging.getLevelName(options.verbosity.upper()))
+        if os.path.exists(options.output):
+            logger.info('Removing %s', options.output)
+            shutil.rmtree(options.output)
         Skype(paths.SKYPE_ROOT, options.account, options.output).convert_logs()
