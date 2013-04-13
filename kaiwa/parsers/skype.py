@@ -1,5 +1,7 @@
 import os
+import shutil
 import sqlite3
+import time
 import xml.etree.ElementTree as ET
 import shutil
 
@@ -21,7 +23,7 @@ class Conversation(object):
         with open(self.path + '.txt', 'a') as fp:
             try:
                 fp.write('{0} - {1}: {2}\n'.format(
-                    row['timestamp'],
+                    time.ctime(int(row['timestamp'])),
                     row['author'],
                     row['body_xml']
                 ))
